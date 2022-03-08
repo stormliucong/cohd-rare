@@ -1,0 +1,7 @@
+[client]
+host = ?
+port = 3306
+user = ?
+password = ?
+local_infile=1
+database = cohd_rare

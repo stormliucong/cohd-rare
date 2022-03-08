@@ -1,0 +1,588 @@
+openapi: 3.0.1
+info:
+  description: |
+    The Open Real-world-based Annotation for Rare Disease (OARD) API provides access to counts and frequencies (i.e., EHR prevalence) of phenotypes and rare diseases. 
+    
+    X datasets are available: 
+    1) OHDSI: HPO and MONDO concepts converted from the standard OMOP concepts extracted from the CUIMC structured clinical dataware house from 2013-2017. 
+    2) CHOP: HPO and MONDO concepts extracted from clinical notes via NLP from the CHOP from 2011-2021.
+    3) SOLR: HPO and MONDO concepts extracted from clinical notes via a keyword based methods from the CUIMC from 2011-2020.
+
+
+    The following resources are available through this API: 
+
+
+    1. Metadata: Metadata on the OARD database, including dataset descriptions, number of concepts, etc. 
+
+
+    2. Vocabulary: Access to the OMOP (pseudo), HPO, MONDO vocabulary for concept name concept identifier, and concept code (e.g. HP:xxxx) mapping
+
+
+    3. Clinical Frequencies: Access to the counts, frequencies, and co-occurrences of phenotypes and disease. Frequency was determined as the number of patients with the code(s) / total number of patients. 
+
+
+    4. Concept Associations: Inferred associations between concepts using chi-square analysis, ratio between observed to expected frequency, and relative frequency. If multiple concepts supplied. A weighted statistics will be generated based on the statistics selected.
+    
+    
+    A [Python notebook](https://github.com/WengLab-InformaticsResearch/XXX) demonstrates simple examples of how to use the COHD API.
+
+
+    OARD was developed based upon [COHD](https://cohd.smart-api.info/ui/70117385218edc9bc01633829011dfcf) at the [Columbia University Department of Biomedical Informatics](https://www.dbmi.columbia.edu/) as a collaboration between the [Weng Lab](http://people.dbmi.columbia.edu/~chw7007/), [Tatonetti Lab](http://tatonettilab.org/), and the [NCATS Biomedical Data Translator](https://ncats.nih.gov/translator) program (Red Team). This work was supported in part by grants: NCATS OT3TR002027, NLM R01LM009886-08A1, and NIGMS R01GM10714, and NLM/NHGRI R01XXXXX.
+    
+  version: 1.0.0
+  title: Open Real-world-based Annotation for Rare Disease (OARD)
+  contact:
+    name: Cong Liu 
+    email: cl3720@cumc.columbia.edu
+    x-role: responsible developer
+    url: 'http://chunhualab.org/'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    
+servers:
+  - url: 'https://rare.cohd.io/api'
+externalDocs:
+  description: >-
+    Documentation for COHD
+  url: https://cohd.smart-api.info/ui/70117385218edc9bc01633829011dfcf
+  
+tags:
+  - name: Metadata
+    description: OARD metadata
+  - name: Vocabulary
+    description: Concept search in OARD
+  - name: Frequencies
+    description: Concepts frequency and co-occurence
+  - name: Association
+    description: Associated concepts
+    
+paths:
+  /metadata/datasets:
+    get:
+      tags:
+        - Metadata
+      summary: Enumerates the datasets available in OARD
+      description: 'Returns a list of datasets, including dataset ID, clinical_site, name, and description, etc.'
+      operationId: datasets
+      responses:
+        default:
+          description: An array of dataset descriptions.
+  /metadata/domainCounts:
+    get:
+      tags:
+        - Metadata
+      summary: The number of concepts in each domain
+      description: Returns a list of domains and the number of concepts in each domain.
+      parameters:
+        - name: dataset_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query. 
+          example: 1
+      operationId: domainCounts
+      responses:
+        default:
+          description: An array of domain counts.
+  /metadata/domainPairCounts:
+    get:
+      tags:
+        - Metadata
+      summary: The number of pairs of concepts in each pair of domains
+      description: >-
+        Returns a list of pairs of domains and the number of pairs of concepts in each.
+      parameters:
+        - name: dataset_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query. 
+          example: 1
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'which domain to search for. e.g. "phenotypes" or "diseases". By default search all domains.'
+          example: 'phenotypes'
+      operationId: domainPairCounts
+      responses:
+        default:
+          description: An array of domain pair counts.
+  /metadata/patientCounts:
+    get:
+      tags:
+        - Metadata
+      summary: The number of patients in the dataset
+      description: Returns the number of patients in the dataset.
+      parameters:
+        - name: dataset_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query. 
+          example: 1
+      operationId: patientCounts
+      responses:
+        default:
+          description: An array of patient counts.
+  
+  /vocabulary/findConceptByName:
+    get:
+      tags:
+        - Vocabulary
+      summary: search concepts by name strings
+      description: >-
+        Returns the concept id, names, codes and domains for the given list of names.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            A semicolon separated list of names, e.g., "muscular dystrophy" or "muscular dystrophy; short stature"
+          example: 'muscular dystrophy; short stature'
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'which domain to search for. e.g. "phenotypes" or "diseases". By default search all domains.'
+          example: 'phenotypes'
+      operationId: findConceptByName
+      responses:
+        default:
+          description: An array of concepts.
+  /vocabulary/findConceptById:
+    get:
+      tags:
+        - Vocabulary
+      summary: search concepts by name strings
+      description: >-
+        Returns the concept id, names, codes and domains for the given list of pseudo OMOP ID.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            A semicolon separated list of pseudo OMOP IDs, e.g., "90003502" or "90003502;90003498"
+          example: '90003502;90003498'
+      operationId: findConceptById
+      responses:
+        default:
+          description: An array of concepts.        
+  /vocabulary/findConceptByCode:
+    get:
+      tags:
+        - Vocabulary
+      summary: search concepts by name strings
+      description: >-
+        Returns the concept id, names, codes and domains for the given list of HPO or MONDO identifiers.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            A semicolon separated list of HPO or MONDO identifiers, e.g., "HP:0003498" or "MONDO:0000171;HP:0003498"
+          example: 'MONDO:0000171;HP:0003498'
+      operationId: findConceptByCode
+      responses:
+        default:
+          description: An array of concepts.        
+  /vocabulary/findConceptByAny:
+    get:
+      tags:
+        - Vocabulary
+      summary: a smart search by any input. 
+      description: >-
+        Returns the concept id, names, codes and domains for the given list of strings. It will automatically search all field to return matches
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            A semicolon separated list of string, e.g., "HP:0003498" or "90003498;HP:0003498"
+          example: 'MONDO:0000171;muscular dystrophy; 90003498'
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'which domain to search for. e.g. "phenotypes" or "diseases". By default search all domains.'
+          example: 'phenotypes'
+      operationId: findConceptByAny
+      responses:
+        default:
+          description: An array of concepts.        
+  
+  /frequencies/singleConceptFreq:
+    get:
+      tags:
+        - Frequencies
+      summary: Clinical frequency of individual concepts
+      description: >-
+        Retrieves observed clinical frequencies of individual concepts. Multiple concepts may be requested in a semicolon separated list.
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query. 
+          example: 1
+        - name: concept_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            A comma separated list of pseudo OMOP concept ids, e.g., '90012461' or '90012461;90003641'
+          example: '90012461;90003641'
+      operationId: singleConceptFreq
+      responses:
+        default:
+          description: An array of single concept frequencies.
+  /frequencies/pairedConceptFreq:
+    get:
+      tags:
+        - Frequencies
+      summary: Clinical frequency of a pair of concepts
+      description: >-
+        Retrieves observed clinical frequencies of a pair of concepts.  Multiple concepts may be requested in a semicolon separated list and return pair-wise concepts co-occurrence.
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query. 
+          example: 1
+        - name: concept_id_1
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 'A comma pair of OMOP concept ids, e.g., "90012461;90003641"'
+          example: '90012461;90003641'
+        - name: concept_id_2
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 'A comma pair of OMOP concept ids, e.g., "192855,2008271"'
+          example: '90500111'
+      operationId: pairedConceptFreq
+      responses:
+        default:
+          description: An array of paired concept frequencies.
+  /frequencies/mostFrequency:
+    get:
+      tags:
+        - Frequencies
+      summary: Most frequently occurred concepts or pairs of concepts
+      description: >-
+        Retrieves concepts or pair of concepts with most observed clinical frequencies or co-occurrences. Multiple concepts input are not allowed.
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query. 
+          example: 1
+        - name: concept_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'A single pseudo OMOP concept id, e.g., "90012461". If not provided return most frequent single concepts. If provided, return most frequent concept pairs'
+          example: '90012461'
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'which domain to search for. e.g. "phenotypes" or "diseases". By default search all domains.'
+          example: 'phenotypes'
+        - name: top_n
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 'return N top ranked records. By default return all results'
+          example: 100
+      operationId: mostFrequency
+      responses:
+        default:
+          description: An array of paired concept frequencies.        
+  
+
+  /association/chiSquare:
+    get:
+      tags:
+        - Association
+      summary: Chi-square analysis on pairs of concepts
+      description: >
+        Returns the chi-square statistic and p-value between pairs of concepts. Results are returned in descending order of the chi-square statistic. Note that due to large sample sizes, the chi-square can become very large. 
+        
+        The expected frequencies for the chi-square analysis are calculated based on the single concept frequencies and assuming independence between concepts. P-value is calculated with 1 DOF. 
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query.
+          example: 1
+        - name: concept_id_1
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids, e.g., "90012461" or "90012461;90003641"
+          example: "90012461;90003641"
+        - name: concept_id_2
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids. If this parameter is specified, then the chi-square between concept_id_1 and concept_id_2 is returned. If this parameter is not specified, then a list of chi-squared results between concept_id_1 and other concepts is returned.
+          example: "90500111"
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            An OMOP domain id, e.g., "phenotypes", "diseases" to restrict the associated concept (concept_id_2) to. By default, no restriction in domains.
+          example: phenotypes
+        - name: top_n
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 'return N top ranked records. By default return all results'
+          example: 100
+        - name: ascending
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            whether rank negative association first? By default false.
+          example: false 
+        
+      operationId: chiSquare
+      responses:
+        default:
+          description: An array of concept pairs and chi-squared values.
+  /association/obsExpRatio:
+    get:
+      tags:
+        - Association
+      summary: Observed Count / Expected Count
+      description: >
+        Returns the natural logarithm of the ratio between the observed count and expected count. Expected count is calculated from the single concept frequencies and assuming independence between the concepts. Results are returned in descending order of ln_ratio.
+        
+        
+        expected_count = Count_1_and_2 * num_patients / (Count_1 * Count_2)
+
+
+        ln_ratio = ln(expected_count)
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query.
+          example: 1
+        - name: concept_id_1
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids, e.g., "90012461" or "90012461;90003641"
+          example: "90012461;90003641"
+        - name: concept_id_2
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids. If this parameter is specified, then the chi-square between concept_id_1 and concept_id_2 is returned. If this parameter is not specified, then a list of chi-squared results between concept_id_1 and other concepts is returned.
+          example: "90500111"
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            An OMOP domain id, e.g., "phenotypes", "diseases" to restrict the associated concept (concept_id_2) to. By default, no restriction in domains.
+          example: phenotypes
+        - name: top_n
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 'return N top ranked records. By default return all results'
+          example: 100
+        - name: ascending
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            whether rank negative association first? By default false.
+          example: false 
+      operationId: obsExpRatio
+      responses:
+        default:
+          description: An array of paired concepts and observed-expected frequency ratio.
+  /association/relativeFrequency:
+    get:
+      tags:
+        - Association
+      summary: Relative frequency between pairs of concepts
+      description: >
+        Calculates the relative frequency (i.e., conditional probability) between pairs of concepts. Results are returned in descending order of relative frequency. Note that due to the randomization of the counts, the calculated relative frequencies can exceed the limit of 1.0.
+
+
+        Relative Frequency = Count_1_and_2 / Count_2
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query.
+          example: 1
+        - name: concept_id_1
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids, e.g., "90012461" or "90012461;90003641"
+          example: "90012461;90003641"
+        - name: concept_id_2
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids. If this parameter is specified, then the chi-square between concept_id_1 and concept_id_2 is returned. If this parameter is not specified, then a list of chi-squared results between concept_id_1 and other concepts is returned.
+          example: "90500111"
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            An OMOP domain id, e.g., "phenotypes", "diseases" to restrict the associated concept (concept_id_2) to. By default, no restriction in domains.
+          example: phenotypes
+        - name: top_n
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 'return N top ranked records. By default return all results'
+          example: 100
+        - name: ascending
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            whether rank negative association first? By default false.
+          example: false 
+      operationId: relativeFrequency
+      responses:
+        default:
+          description: An array of paired concepts and relative frequency.
+  /association/jaccardIndex:
+    get:
+      tags:
+        - Association
+      summary: Jaccard index between pairs of concepts
+      description: >
+        Calculates the jaccard index (i.e., correlation) between pairs of concepts. Results are returned in descending order of jaccard index. 
+
+        jaccard index = Count_1_and_2 / Count_1_or_2
+      parameters:
+        - name: dataset_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: >-
+            The dataset_id of the dataset to query.
+          example: 1
+        - name: concept_id_1
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids, e.g., "90012461" or "90012461;90003641"
+          example: "90012461;90003641"
+        - name: concept_id_2
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Semicolon seperated pseudo OMOP concept ids. If this parameter is specified, then the chi-square between concept_id_1 and concept_id_2 is returned. If this parameter is not specified, then a list of chi-squared results between concept_id_1 and other concepts is returned.
+          example: "90500111"
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            An OMOP domain id, e.g., "phenotypes", "diseases" to restrict the associated concept (concept_id_2) to. By default, no restriction in domains.
+          example: phenotypes
+        - name: top_n
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 'return N top ranked records. By default return all results'
+          example: 100
+        - name: ascending
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            whether rank negative association first? By default false.
+          example: false 
+      operationId: jaccardIndex
+      responses:
+        default:
+          description: An array of paired concepts and jaccard index
+
+security: []
