@@ -57,7 +57,7 @@ def get_omop_id(cur = None, concept_id_list = None, concept_name_list = None, co
                     {domain_filter}
                     {vocabulary_filter}
                     {id_name_code_filter}
-                LIMIT 100;
+                ;
     '''
     params = {
         

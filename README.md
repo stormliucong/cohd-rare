@@ -44,7 +44,7 @@ Please see [here](https://github.com/tatonetti-lab/nsides/tree/master/job_api)
 - `/var/cohd-rare/cohd/venv` – virtualenv location
 - `/var/log/uwsgi/cohd-rare.log` – log file
 - `/etc/system/system/cohd-rare.service` – system configuration (already set to automatically start on boot)
-- `sudo systemctl <start|stop|restart>` cohd-rare
+- `sudo systemctl <start|stop|restart> cohd-rare`
 restart after python code changes to app
 - `/etc/nginx/sites-available/cohd-rare` – nginx configuration
 - `sudo systemctl restart nginx` - restart nginx
