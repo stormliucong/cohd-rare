@@ -43,7 +43,7 @@ def website():
 @app.route('/api/')
 def api_cohd():
     google_analytics(endpoint='/api')
-    return redirect("https://smart-api.info/ui/aed21cd6828e18de3fa2da6a76574520", code=302)
+    return redirect("https://smart-api.info/ui/25d608913f0e16a87dd29dabe3f52f78", code=302)
 
 @app.route('/api/metadata/datasets')
 def api_meta_():
