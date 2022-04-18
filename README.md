@@ -5,8 +5,7 @@ This is a Flask app to serve the backend API of OARD. Currently it is hosted on 
 [NCATS AWS server (https://rare.cohd.io/)](https://rare.cohd.io/). This repo currenly only have the Flask API part. The fron end React web app is hosted in another [repo](https://github.com/stormliucong/oard-react). We expect to merge two repos in the near future.
 
 # Columbia Open Health Data API (COHD)
-The architecture of this web API is largely adopted from an exisitng project called [COHD](https://github.com/WengLab-InformaticsResearch/cohd_api), which is a database of frequencies of clinical concepts observed at Columbia University Medical Center. Over 17,000 clinical concepts and 8.7M pairs of clinical concepts, including conditions, drugs, and procedures are included. The COHD RESTful API allows users to query the database. 
-
+The architecture of this web API is largely adopted from an exisitng project called [COHD](https://github.com/WengLab-InformaticsResearch/cohd_api)
 ## Installation
 
 To install
@@ -16,15 +15,15 @@ pip -r requirement.txt
 
 ## Running the Application
 
-The COHD API is served using FLASK:
+The API is served using FLASK:
 
 ```
 FLASK_APP=cohd.py flask run
 ```
 
-## Deploying and running COHD on AWS
+## Deploying and running OARD on AWS
 
-COHD is served on an AWS EC2 instance using Nginx and uWSGI. For consistency, use the approach in the following [blog post](http://vladikk.com/2013/09/12/serving-flask-with-nginx-on-ubuntu/)
+OARD is served on an AWS EC2 instance using Nginx and uWSGI. For consistency, use the approach in the following [blog post](http://vladikk.com/2013/09/12/serving-flask-with-nginx-on-ubuntu/)
 
 Caveats:
 
