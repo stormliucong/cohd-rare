@@ -6,7 +6,7 @@ info:
     url: http://chunhualab.org/
     x-role: responsible developer
   description: "Open Annotation for Rare Diseases (OARD) is a real-world data derived annotations for rare disease related phenotypes.\n\n\n \
-  A [Python notebook](https://github.com/WengLab-InformaticsResearch/XXX) demonstrates simple examples of how to use the API. \n\n\n
+  A [Python notebook](https://github.com/stormliucong/oard-react/blob/master/notebook/api_examples.ipynb) demonstrates simple examples of how to use the API. \n\n\n
   OARD was developed based upon [COHD](https://cohd.smart-api.info/ui/70117385218edc9bc01633829011dfcf). It is a collaboration between [Weng Lab](http://people.dbmi.columbia.edu/~chw7007/) at [Columbia DBMI](https://www.dbmi.columbia.edu/), [Wang Lab](https://wglab.org/) at [CHOP](https://www.research.chop.edu/), and the [NCATS Biomedical Data Translator](https://ncats.nih.gov/translator) program (Red Team). \n\n\n 
   This work was supported in part by grants: NCATS OT2TR003434, and NLM/NHGRI R01LM012895.\n"
   license:
